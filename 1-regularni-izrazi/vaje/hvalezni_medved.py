@@ -25,7 +25,17 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> find_words(test_text, 'de')
 # {'izdere', 'debel', 'oddide', 'začudeno'}
 ###############################################################################
-
+import re
+def find_words(niz, podniz):
+    beseda = r'\b.*'
+    vse_besede = set()
+    for x in re.finditer(beseda, niz):
+        vse_besede = vse_besede|x
+    prave_besede = {}
+    for y  in vse_besede:
+        if podniz in y:
+            prave_besede = prave_besede|y
+    return prave_besede
 
 ###############################################################################
 # 2) Sestavite funkcijo [find_prefix], ki vrne množico vseh besed, ki se
@@ -34,6 +44,13 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> find_prefix(test_text, 'zi')
 # {'zibala', 'zibel', 'zibelko'}
 ###############################################################################
+import re
+def find_prefix(niz, predpona):
+    beseda = r'\bpredpona.*'
+    vse_besede = set()
+    for x in re.finditer(beseda, niz):
+        vse_besede |= x
+    return vse_besede
 
 
 ###############################################################################
@@ -43,7 +60,13 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> find_suffix(test_text, 'la')
 # {'zibala', 'razveselila', 'prestrašila', 'šivala', 'opazila', 'tla'}
 ###############################################################################
-
+import re
+def find_suffix(niz, pripona):
+    beseda = r'\d.*pripona$'
+    besede = set()
+    for x in re.finditer(beseda, niz):
+        besede |= x
+    return besede
 
 ###############################################################################
 # 4) Sestavite funkcijo [double_letters], ki sprejme niz in vrne množico vseh
@@ -52,3 +75,4 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> double_letters('A volunteer is worth twenty pressed men.')
 # {'volunteer', 'pressed'}
 ###############################################################################
+
