@@ -2,6 +2,7 @@
 (* ========== Exercise 1: Introduction to OCaml  ========== *)
 
 
+
 (*----------------------------------------------------------------------------*]
  The function [penultimate_element] returns the second-to-last element of a
  list. If the list is too short it raises an error.
@@ -9,8 +10,13 @@
  # penultimate_element [1; 2; 3; 4];;
  - : int = 3
 [*----------------------------------------------------------------------------*)
+let rec penultimate_element = function
 
-let rec penultimate_element = ()
+  | x :: _ :: [] -> x
+
+  | _ :: xs -> penultimate_element xs
+
+  | [] -> failwith "List is too short."
 
 (*----------------------------------------------------------------------------*]
  The function [get k list] returns the [k]-th element in the list [list].

@@ -18,6 +18,11 @@
       0   6   11
 [*----------------------------------------------------------------------------*)
 
+type 'a tree =
+    |Empty
+    |Node of 'a tree * 'a * 'a tree
+
+let leaf x = Node(Empty, x, Empty)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [mirror] vrne prezrcaljeno drevo. Na primeru [test_tree] torej vrne
@@ -32,6 +37,15 @@
  Node (Node (Node (Empty, 11, Empty), 7, Node (Empty, 6, Empty)), 5,
  Node (Empty, 2, Node (Empty, 0, Empty)))
 [*----------------------------------------------------------------------------*)
+let test_tree =
+    let left_tree = Node(leaf 0, 2, Empty) in
+    let right_tree = Node(leaf 6, 7,leaf 11) in
+     Node(left_tree, 5, right_tree)
+
+let rec mirror tree =
+    match tree with
+    |Empty-> Empty
+    |Node(lt, x, rt) -> Node(mirror rt, x, mirror lt)
 
 
 (*----------------------------------------------------------------------------*]
@@ -43,6 +57,39 @@
  # size test_tree;;
  - : int = 6
 [*----------------------------------------------------------------------------*)
+let rec size = function
+|Empty -> 0
+|Node(lt, x, rt) -> 1 + size lt + size rt
+
+(*Size repno rekuruivno*)
+let rec tl_rec_size tree =
+    let rec size_aux acc queue =
+        match queue with
+        |[] -> acc
+        |t :: ts -> (
+            match t with
+            |Empty ->size_aux acc ts
+            |Node(lt, x, rt) -> size_aux (acc + 1) (lt :: rt ::ts)
+        )
+
+        let rec tl_rec_size tree =
+            let rec size_aux acc queue = (*queue vse nadaljne elemente dodamo v to vrsto *)
+                match queue with
+                |[] -> acc
+                |t :: ts -> (
+                    (*Obravnavamo drevo*)
+                    match t with
+                    |Empty ->size_aux acc ts (*Prazno drevo samo odstranimoiz vrste*)
+                    |Node(lt, x, rt) -> 
+                    let new_acc = acc + 1 in (*Obravnavamo vozlišče*)
+                    let new_queue =lt :: rt:: ts(*Dodamo poddrevesa v vrste*)
+                    size_aux new_acc new_queue
+                )
+                in
+                (*Zaženemo pomožnofunkcijo*)
+                size_aux 0 [tree]
+
+            (*IZPIT!!!*)
 
 
 (*----------------------------------------------------------------------------*]
@@ -54,6 +101,10 @@
  Node (Node (Node (Empty, false, Empty), false, Empty), true,
  Node (Node (Empty, true, Empty), true, Node (Empty, true, Empty)))
 [*----------------------------------------------------------------------------*)
+let rec map_tree f tree =
+    match tree with
+    |Empty -> Empty
+    |Node(lt, x, rt) -> Node(map_tree lt, f x, map_tree rt)
 
 
 (*----------------------------------------------------------------------------*]
@@ -63,6 +114,15 @@
  # list_of_tree test_tree;;
  - : int list = [0; 2; 5; 6; 7; 11]
 [*----------------------------------------------------------------------------*)
+let rec list_of_tree tree =
+    let rec list_of_tree_aux acc1 tree =
+        match tree with
+        |Empty -> acc1
+        |Node(lt, x, rt) -> list_of_tree (x :: acc1)  (lt :: rt) 
+
+    in list_of_tree_aux [] tree
+        
+
 
 
 (*----------------------------------------------------------------------------*]
@@ -112,7 +172,27 @@
  # pred (Node(Empty, 5, leaf 7));;
  - : int option = None
 [*----------------------------------------------------------------------------*)
+type a' option = None | Some of a'
 
+let succ bst =
+    let rec min = function
+    |Empty -> None
+    |Node(Empty, x, _) -> Some x
+    |Node(l, _, _) -> min l 
+    in
+    match bst with
+    |Empty -> None
+    |Node(_,_,r) -> min r 
+
+let pred bst =
+    let rec max = function
+    |Empty -> None
+    |Node(Empty, x, _) -> Some x
+    |Node(l, _, _) -> max l  
+    in
+    match tree with
+    |Empty -> None
+    |Node(_,_,r) -> max r
 
 (*----------------------------------------------------------------------------*]
  Na predavanjih ste omenili dva načina brisanja elementov iz drevesa. Prvi 
@@ -127,6 +207,18 @@
  Node (Node (Empty, 6, Empty), 11, Empty))
 [*----------------------------------------------------------------------------*)
 
+let rec delete x bst = function
+|Empty -> Empty
+|(Node (l, x, r) as t) ->
+   if x < y then
+       Node(y, delete x l, r)
+    else if x > y then
+       Node(y, l, delete x r)
+    else
+       match succ t with
+         |None -> l
+         |Some s -> let r_without_s = delete s r in
+                    |Node(s, l, r_without_s)
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  SLOVARJI
@@ -148,7 +240,7 @@
          /
      "c":-2
 [*----------------------------------------------------------------------------*)
-
+(*'key * 'value *)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_get key dict] v slovarju poišče vrednost z ključem [key]. Ker
